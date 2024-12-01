@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.APP_DEVELOPMENT_NAME }}
+  labels:
+    {{- include "helm-labels" . }}
+    {{- include "default-k8-labels" . }}
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.PERSISTENT_VOLUME_SIZE }}

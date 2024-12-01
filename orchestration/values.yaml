@@ -1,0 +1,24 @@
+# Expected these are passed by --set from env vars.
+APP_VERSION: null
+APP_DEVELOPMENT_NAME: null
+APP_PRODUCTION_NAME: null
+DASHBOARD_CONTAINER_PORT: null
+DASHBOARD_POD_PORT: null
+DASHBOARD_NODE_PORT: null
+IMAGE_REGISTRY: null
+ENVIRONMENT: null
+
+CONTAINER_REQUESTED_MEMORY: 128Mi
+CONTAINER_REQUESTED_CPU: 250m
+
+CONTAINER_LIMITED_MEMORY: 512Mi
+CONTAINER_LIMITED_CPU: 500m
+
+PERSISTENT_VOLUME_SIZE: 10Gi
+
+# The volume used is local, i.e. a file-system on the local node.
+# In production i'd use a NAS or a cloud storage.
+NODE_DB_VOLUME_PATH: /var/lib/docker/volumes/thrasos/_data
+NODE_HOSTNAME: docker-desktop
+
+CONTAINER_DB_PATH: /prometheus

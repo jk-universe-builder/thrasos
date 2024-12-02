@@ -1,13 +1,9 @@
-FROM prom/prometheus:latest AS base
+FROM debian:bullseye as base
 
-ARG DASHBOARD_CONTAINER_PORT=9090
+# Copy targets.json.
+COPY configuration/targets.json targets.json
 
-EXPOSE ${DASHBOARD_CONTAINER_PORT}/tcp
-
-VOLUME [ "/prometheus" ]
-
-# Configuration File.
-COPY configuration/prometheus.yml /etc/prometheus/prometheus.yml
-
-# Targets File (service discovery).
-COPY configuration/targets.json /etc/prometheus/targets.json
+# Copy entrypoint to usr/local/bin.
+COPY orchestration/initializer/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]

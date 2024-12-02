@@ -13,7 +13,6 @@ To achieve this the targets.json is stored in the shared volume.
 The initializer copies these files to the shared volume before these services start.
 
 
-
 ## Debugging
 
 ## Local

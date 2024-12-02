@@ -1,6 +1,7 @@
 import k8s from "@kubernetes/client-node";
 import process from "process";
 import fs from "fs";
+import path from "path";
 
 const SERVICE_DISCOVERY_FREQUENCY_MS = process.env.SERVICE_DISCOVERY_FREQUENCY_MS;
 
@@ -36,6 +37,9 @@ const getPromAddressesFromPods = async () => {
             // Skip if pod doesn't have IP yet.
             if( podIP === undefined ) continue;
 
+            if( pod.metadata.annotations === undefined ) continue;
+            if( pod.metadata.annotations[ "prometheus.io/port" ] === undefined ) continue;
+
             /** @type { string | undefined } */
             const promPort = pod.metadata.annotations[ "prometheus.io/port" ];
 
@@ -61,22 +65,25 @@ const discoverServices = async () => {
 
     const podIPsWithPrometheus = await getPromAddressesFromPods();
 
-    const podTargets = podIPsWithPrometheus.map( address => {
-        return {
-            labels: [
-                `job=pod-metrics` // See prometheus configuration file.
-            ],
-            targets: [ 
-                `${ address.IP }:${ address.port }` 
-            ]
-        };
-    });
+    const podTargets = {
+        labels: {
+            job: "pod-metrics" // See prometheus configuration file.
+        },
+        targets: []
+    };
 
-    // Add prometheus itself.
-    podTargets.push( { IP: "localhost", port: "9090" } );
+    for( const address of podIPsWithPrometheus ) {
+
+        podTargets.targets.push( `${ address.IP }:${ address.port }` );
+
+    }
+    
+    // Make all targets.
+    const targets = [ podTargets ]; // Add more targets here in the future (node targets etc).
 
     // Write targets.
-    fs.writeFileSync( "/etc/prometheus/targets.json", JSON.stringify( podTargets, null, 2 ) );
+    const pathToTargetsFile = path.join( "/", "prometheus", "targets.json" );
+    fs.writeFileSync( pathToTargetsFile, JSON.stringify( targets, null, 2 ) );
 
     setTimeout( async () => { discoverServices(); }, SERVICE_DISCOVERY_FREQUENCY_MS );
 

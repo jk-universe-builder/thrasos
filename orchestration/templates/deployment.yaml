@@ -15,10 +15,38 @@ spec:
       labels:
         {{- include "helm-labels" . | indent 4 }}
         {{- include "default-k8-labels" . | indent 4 }}
+        metrics: prometheus
+      annotations:
+        prometheus.io/port: {{ .Values.DASHBOARD_POD_PORT | quote }}
     spec:
+      initContainers:
+        - name: "{{ .Values.APP_DEVELOPMENT_NAME }}-initializer"
+          image: "{{ .Values.IMAGE_REGISTRY }}/{{ .Values.APP_DEVELOPMENT_NAME }}-initializer"
+          volumeMounts:
+            - mountPath: {{ .Values.CONTAINER_DB_PATH | quote }}
+              name: {{ .Values.APP_DEVELOPMENT_NAME }}
+          resources:
+            requests:
+              memory: {{ .Values.CONTAINER_REQUESTED_MEMORY }}
+              cpu: {{ .Values.CONTAINER_REQUESTED_CPU }}
+            limits:
+              memory: {{ .Values.CONTAINER_LIMITED_MEMORY }}
+              cpu: {{ .Values.CONTAINER_LIMITED_CPU }}
       containers:
-        - name: {{ .Values.APP_DEVELOPMENT_NAME }}
-          image: "{{ .Values.IMAGE_REGISTRY }}/{{ .Values.APP_DEVELOPMENT_NAME }}"
+        - name: "{{ .Values.APP_DEVELOPMENT_NAME }}-prometheus"
+          image: "{{ .Values.IMAGE_REGISTRY }}/{{ .Values.APP_DEVELOPMENT_NAME }}-prometheus"
+          volumeMounts:
+            - mountPath: {{ .Values.CONTAINER_DB_PATH | quote }}
+              name: {{ .Values.APP_DEVELOPMENT_NAME }}
+          resources:
+            requests:
+              memory: {{ .Values.CONTAINER_REQUESTED_MEMORY }}
+              cpu: {{ .Values.CONTAINER_REQUESTED_CPU }}
+            limits:
+              memory: {{ .Values.CONTAINER_LIMITED_MEMORY }}
+              cpu: {{ .Values.CONTAINER_LIMITED_CPU }}
+        - name: "{{ .Values.APP_DEVELOPMENT_NAME }}-service-discovery"
+          image: "{{ .Values.IMAGE_REGISTRY }}/{{ .Values.APP_DEVELOPMENT_NAME }}-service-discovery"
           volumeMounts:
             - mountPath: {{ .Values.CONTAINER_DB_PATH | quote }}
               name: {{ .Values.APP_DEVELOPMENT_NAME }}

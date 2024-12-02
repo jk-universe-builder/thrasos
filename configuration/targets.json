@@ -1,10 +1,9 @@
 [
     {
         "labels": {
-            "job": "prometheus"
+            "job": "pod-metrics"
         },
         "targets": [
-            "localhost:9090"
         ]
     }
 ]
